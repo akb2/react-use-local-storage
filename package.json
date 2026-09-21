@@ -10,9 +10,8 @@
     }
   },
   "scripts": {
-    "build": "tsup src/index.ts --dts --format esm,cjs --clean --out-dir .dist --minify",
-    "prepublishOnly": "npm run build",
-    "publish": "npm publish --access public",
+    "build": "tsup src/index.ts --inject ./src/react.inject.ts --dts --format esm,cjs --clean --out-dir .dist --minify",
+    "release": "pnpm run build && pnpm publish --access public",
     "test": "vitest run",
     "test:watch": "vitest",
     "lint": "eslint .",
@@ -54,7 +53,7 @@
     "prettier": "^3.9.7",
     "react-dom": "^18.3.1",
     "tsup": "^8.5.1",
-    "typescript": "^7.0.2",
+    "typescript": "^5.9.3",
     "vitest": "^5.0.1"
   },
   "dependencies": {
