@@ -12,7 +12,13 @@
   "scripts": {
     "build": "tsup src/index.ts --dts --format esm,cjs --clean --out-dir .dist --minify",
     "prepublishOnly": "npm run build",
-    "publish": "npm publish --access public"
+    "publish": "npm publish --access public",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier . --write",
+    "format:check": "prettier . --check"
   },
   "keywords": [
     "react",
@@ -40,9 +46,12 @@
   "devDependencies": {
     "@testing-library/dom": "^10.4.2",
     "@testing-library/react": "^16.3.3",
+    "@types/node": "^26.6.2",
     "@types/react": "^18.3.31",
     "@types/react-dom": "^18.3.7",
+    "eslint-config-prettier": "^10.1.8",
     "jsdom": "^30.1.0",
+    "prettier": "^3.9.7",
     "react-dom": "^18.3.1",
     "tsup": "^8.5.1",
     "typescript": "^7.0.2",
