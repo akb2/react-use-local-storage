@@ -1,5 +1,5 @@
 {
-  "name": "react-use-local-storage",
+  "name": "@akb2/react-use-local-storage",
   "version": "1.0.0",
   "description": "A state hook with browser's localStorage",
   "exports": {
