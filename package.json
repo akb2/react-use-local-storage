@@ -10,7 +10,9 @@
     }
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsup src/index.ts --dts --format esm,cjs --clean --out-dir dist --minify",
+    "prepublishOnly": "npm run build",
+    "publish": "npm publish --access public"
   },
   "keywords": [
     "react",
@@ -34,5 +36,9 @@
     }
   },
   "packageManager": "pnpm@12.5.1",
-  "type": "module"
+  "type": "module",
+  "devDependencies": {
+    "tsup": "^8.5.1",
+    "typescript": "^7.0.2"
+  }
 }
