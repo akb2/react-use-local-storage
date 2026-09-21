@@ -1,0 +1,38 @@
+{
+  "name": "react-use-local-storage",
+  "version": "1.0.0",
+  "description": "A state hook with browser's localStorage",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "react",
+    "localStorage",
+    "hook"
+  ],
+  "author": "akb2",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/akb2/react-use-local-storage.git"
+  },
+  "bugs": {
+    "url": "https://github.com/akb2/react-use-local-storage/issues"
+  },
+  "license": "MPL-2.0",
+  "devEngines": {
+    "packageManager": {
+      "name": "pnpm",
+      "version": "12.5.1",
+      "onFail": "download"
+    }
+  },
+  "packageManager": "pnpm@12.5.1",
+  "type": "module"
+}
