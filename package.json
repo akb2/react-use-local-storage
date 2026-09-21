@@ -4,13 +4,13 @@
   "description": "A state hook with browser's localStorage",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs"
+      "types": "./.dist/index.d.ts",
+      "import": "./.dist/index.js",
+      "require": "./.dist/index.cjs"
     }
   },
   "scripts": {
-    "build": "tsup src/index.ts --dts --format esm,cjs --clean --out-dir dist --minify",
+    "build": "tsup src/index.ts --dts --format esm,cjs --clean --out-dir .dist --minify",
     "prepublishOnly": "npm run build",
     "publish": "npm publish --access public"
   },
@@ -38,7 +38,24 @@
   "packageManager": "pnpm@12.5.1",
   "type": "module",
   "devDependencies": {
+    "@types/react": "^18.3.31",
     "tsup": "^8.5.1",
     "typescript": "^7.0.2"
+  },
+  "dependencies": {
+    "@akb2/types-tools": "^1.3.0",
+    "react": "^18.3.1"
+  },
+  "peerDependencies": {
+    "@akb2/types-tools": "^1.3.0",
+    "react": "^18.3.1"
+  },
+  "peerDependenciesMeta": {
+    "@akb2/types-tools": {
+      "optional": false
+    },
+    "react": {
+      "optional": false
+    }
   }
 }
