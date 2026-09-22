@@ -1,4 +1,4 @@
-import { isDefined, NotDefinable } from "@akb2/types-tools";
+import { isDefined, Nullable } from "@akb2/types-tools";
 import { deepFreeze } from "@utils/deep-freeze";
 import { getOriginalDataStorageKey } from "./get-original-data-storage-key";
 
@@ -9,22 +9,33 @@ import { getOriginalDataStorageKey } from "./get-original-data-storage-key";
  * @param key The key in local storage to retrieve the value for.
  * @returns The value associated with the key, or undefined if not found.
  */
-export const getLocalStorageValue = <T>(key: string): NotDefinable<T> => {
-  if (typeof window === 'undefined') {
-    return undefined;
+export function getLocalStorageValue<T>(key: string): Nullable<T>;
+export function getLocalStorageValue<T>(
+  key: string,
+  fallback: Exclude<T, null | undefined>,
+): Exclude<T, null | undefined>;
+export function getLocalStorageValue<T>(key: string, fallback: Nullable<T>): Nullable<T>;
+export function getLocalStorageValue<T>(
+  key: string,
+  mixedFallback: Nullable<T> = null,
+): Nullable<T> {
+  const fallback = mixedFallback ?? null;
+
+  if (typeof window === "undefined") {
+    return fallback;
   }
 
   const raw = localStorage.getItem(key);
 
   if (!isDefined(raw)) {
-    return undefined;
+    return fallback;
   }
 
-  if(!isDefined(window.__AKB2_LOCAL_STORAGE__)){
-    window.__AKB2_LOCAL_STORAGE__ = { } as typeof window.__AKB2_LOCAL_STORAGE__;
+  if (!isDefined(window.__AKB2_LOCAL_STORAGE__)) {
+    window.__AKB2_LOCAL_STORAGE__ = {} as typeof window.__AKB2_LOCAL_STORAGE__;
   }
 
-  if(!isDefined(window.__AKB2_LOCAL_STORAGE__.originalData)){
+  if (!isDefined(window.__AKB2_LOCAL_STORAGE__.originalData)) {
     window.__AKB2_LOCAL_STORAGE__.originalData = new Map();
   }
 
@@ -44,6 +55,6 @@ export const getLocalStorageValue = <T>(key: string): NotDefinable<T> => {
 
     return parsedData as Readonly<T>;
   } catch {
-    return raw.length > 0 ? (raw as unknown as T) : undefined;
+    return raw.length > 0 ? (raw as unknown as T) : fallback;
   }
-};
+}

@@ -18,54 +18,69 @@ The package provides ESM, CommonJS, and TypeScript declarations.
 import { useLocalStorageState } from "react-use-local-storage";
 
 export const Counter = () => {
-  const [count, setCount] = useLocalStorageState<number>("counter");
+  const [count, setCount] = useLocalStorageState<number>("counter", 0);
 
   return (
-    <button onClick={() => setCount((previous) => (previous ?? 0) + 1)}>
-      Clicks: {count ?? 0}
+    <button onClick={() => setCount(count + 1)}>
+      Clicks: {count}
     </button>
   );
 };
 ```
 
-The hook returns `undefined` for a missing key. There is no second argument for an initial value. Use `??` to provide a display fallback; this does not write the fallback to storage.
+The optional second argument is a fallback for a missing key. Without a fallback, a missing key returns `null`. The fallback is used for reading and rendering only; it is not written to storage. Removing the key makes the hook return its fallback again.
 
 ## API
 
-### `useLocalStorageState<T>(key)`
+### `useLocalStorageState<T>(key, fallback?)`
 
 ```ts
-const [value, setValue, storageKey] = useLocalStorageState<string>("name");
+const [value, setValue, storageKey] = useLocalStorageState<string>("name", "Guest");
 ```
 
 | Element | Description |
 | --- | --- |
-| `value` | The current value, or `undefined` for a missing key |
-| `setValue` | Writes a value or computes a new value from the previous one |
+| `value` | The stored value, or the fallback for a missing key (`null` by default) |
+| `setValue` | Writes a new value; accepts nullable values for removal |
 | `storageKey` | The key passed to the hook |
 
 ```ts
 setValue("Andrew");
-setValue((previous) => `${previous ?? ""}!`);
+setValue(`${value}!`);
+setValue(null); // Removes the key; this hook returns "Guest" again.
 ```
 
-An updater callback receives the current value from storage. At runtime, this can be `undefined` when the key is missing, so handle that case in the callback. The current setter signature is `Dispatch<SetStateAction<T>>`, which does not reflect this possible `undefined` argument.
+The hook's setter is typed as `Dispatch<Nullable<T>>`: pass a value directly. Functional updater callbacks are not part of this public hook signature.
 
-Functions cannot be stored as values: a function argument is treated as an updater, and returning a function from that updater throws an error.
+A non-null fallback selects an overload with a non-null return type. This is a TypeScript declaration, not runtime validation of existing storage data.
 
-### `getLocalStorageValue<T>(key)`
+For object or array fallbacks, reuse a stable reference so that repeated snapshot reads return the same value when the key is missing:
+
+```ts
+const DEFAULT_PREFERENCES = { theme: "light" as const };
+
+// Inside a component:
+const [preferences, setPreferences] = useLocalStorageState<{
+  theme: "light" | "dark";
+}>("preferences", DEFAULT_PREFERENCES);
+```
+
+Avoid passing a newly created object or array as the fallback on every render, especially during server rendering and hydration.
+
+### `getLocalStorageValue<T>(key, fallback?)`
 
 Reads a value without creating a React subscription:
 
 ```ts
 import { getLocalStorageValue } from "react-use-local-storage";
 
-const name = getLocalStorageValue<string>("name");
+const name = getLocalStorageValue<string>("name", "Guest");
+const missing = getLocalStorageValue<string>("missing"); // null if absent
 ```
 
-Returns `undefined` for a missing key. The generic type `T` describes the expected value; it does not validate stored data at runtime.
+Returns the fallback when the key is missing or `window` is unavailable. An omitted, `null`, or `undefined` fallback is normalized to `null` by the getter. The generic type `T` describes the expected value; it does not validate stored data at runtime.
 
-### `setLocalStorageValue<T>(key, valueOrCallback)`
+### `setLocalStorageValue<T>(key, value)`
 
 Writes a value and notifies subscribers to that key in the current window:
 
@@ -73,7 +88,7 @@ Writes a value and notifies subscribers to that key in the current window:
 import { setLocalStorageValue } from "react-use-local-storage";
 
 setLocalStorageValue("name", "Andrew");
-setLocalStorageValue<number>("counter", (previous) => (previous ?? 0) + 1);
+setLocalStorageValue<number>("counter", 1);
 ```
 
 Writing the same serialized content does not notify subscribers again. Passing `null` removes the value.
@@ -127,7 +142,7 @@ export const ThemeButton = () => {
   return (
     <button
       onClick={() =>
-        setPreferences((previous) => ({ ...previous, theme: "dark" }))
+        setPreferences({ ...preferences, theme: "dark" })
       }
     >
       Theme: {preferences?.theme ?? "light"}
@@ -137,6 +152,19 @@ export const ThemeButton = () => {
 ```
 
 When reading data written by other code, the getter reads the `.value` property of parsed JSON. If parsing or subsequent processing throws, it returns the original nonempty string. Arbitrary JSON without the wrapper is not the library's storage format.
+
+The fallback does not replace all invalid stored data:
+
+| Stored content | Getter result |
+| --- | --- |
+| Missing key | Fallback, or `null` by default |
+| `{"value":42}` | `42` |
+| `{}` | `undefined`, even with a fallback |
+| `{"value":null}` | `null`, even with a non-null fallback |
+| Nonempty invalid JSON | The original raw string |
+| Empty string | Fallback |
+
+The getter currently returns `parsedData` directly after reading `.value`. Therefore, the non-null fallback overload does not guarantee a non-null runtime result for arbitrary existing data.
 
 ## Synchronization
 
@@ -149,9 +177,9 @@ When writing directly from another tab, use the `JSON.stringify({ value: ... })`
 
 ## Server-side rendering
 
-The hook's server snapshot is `undefined`. When `window` is unavailable, reads return `undefined`, and writes and clearing are no-ops. After hydration, React uses the client snapshot from `localStorage`.
+The hook's server snapshot is its fallback (`null` by default). When `window` is unavailable, the getter returns its fallback, and writes and clearing are no-ops. During hydration, use the same fallback on the server and client. After hydration, React uses the client snapshot from `localStorage`.
 
-Provide a fallback for the initial display, such as `value ?? ""`.
+The fallback does not initialize or overwrite stored data.
 
 ## Limitations
 

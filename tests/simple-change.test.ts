@@ -14,13 +14,13 @@ describe("A simple value changing", () => {
   it("No changing a value", () => {
     const { result } = renderHook(() => useLocalStorageState("initial"));
 
-    expect(result.current[0]).toBeUndefined();
+    expect(result.current[0]).toBeNull();
   });
 
   it("Changing a value", () => {
     const { result } = renderHook(() => useLocalStorageState("initial"));
 
-    expect(result.current[0]).toBeUndefined();
+    expect(result.current[0]).toBeNull();
     act(() => result.current[1]("new value"));
     expect(result.current[0]).toBe("new value");
   });
@@ -30,10 +30,10 @@ describe("A simple value changing", () => {
 
     const { result } = renderHook(() => useLocalStorageState("initial"));
 
-    expect(result.current[0]).toBeUndefined();
+    expect(result.current[0]).toBeNull();
     setTimeout(() => result.current[1]("new value with timeout"), 100);
     act(() => vi.advanceTimersByTime(99));
-    expect(result.current[0]).toBeUndefined();
+    expect(result.current[0]).toBeNull();
     act(() => vi.advanceTimersByTime(1));
     expect(result.current[0]).toBe("new value with timeout");
   });

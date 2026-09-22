@@ -14,14 +14,14 @@ describe("LocalStorage direct changing", () => {
   it("No support changes with direct localStorage modification", () => {
     const { result } = renderHook(() => useLocalStorageState("initial"));
 
-    expect(result.current[0]).toBeUndefined();
+    expect(result.current[0]).toBeNull();
 
     localStorage.setItem(
       "initial",
       JSON.stringify({ value: "new value with direct modification" }),
     );
 
-    return waitFor(() => expect(result.current[0]).toBe(undefined), {
+    return waitFor(() => expect(result.current[0]).toBeNull(), {
       timeout: 2000,
     });
   });
