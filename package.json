@@ -1,6 +1,6 @@
 {
   "name": "@akb2/react-use-local-storage",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "A state hook with browser's localStorage",
   "exports": {
     ".": {
@@ -9,6 +9,9 @@
       "require": "./.dist/index.cjs"
     }
   },
+  "files": [
+    ".dist"
+  ],
   "scripts": {
     "build": "tsup src/index.ts --inject ./src/react.inject.ts --dts --format esm,cjs --clean --out-dir .dist --minify",
     "release": "pnpm run build && pnpm publish --access public",
